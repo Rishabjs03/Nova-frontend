@@ -11,21 +11,34 @@ import {
 } from "@/components/ui/input-group";
 
 import { motion } from "framer-motion";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 export default function TextAgent() {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
+  const [messages, setMessages] = useState<{ role: string; text: string }[]>(
+    []
+  );
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestions = [
-  "Summarize any URL or article for me.",
-  "Search the web about a topic and explain it simply.",
-  "Extract and summarize content from a webpage.",
-  "Generate an image for my idea.",
-  "Compare two things using the latest online data.",
-  "Find recent news about any subject.",
-];
+    "Summarize any URL or article for me.",
+    "Search the web about a topic and explain it simply.",
+    "Extract and summarize content from a webpage.",
+    "Generate an image for my idea.",
+    "Compare two things using the latest online data.",
+    "Find recent news about any subject.",
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -57,18 +70,52 @@ export default function TextAgent() {
     setLoading(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
+  const handleModelChange = (value: string) => {
+    if (value === "Nova Text") {
+      router.push("/text");
+    } else if (value === "Nova Voice") {
+      router.push("/voice");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center font-sans text-gray-900 relative overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-purple-50/50 to-white pointer-events-none" />
+      {/* Paper Texture */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `
+        radial-gradient(circle at 1px 1px, rgba(0,0,0,0.08) 1px, transparent 0),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)
+      `,
+          backgroundSize: "8px 8px, 32px 32px, 32px 32px",
+        }}
+      />
 
+      {/* Text or Voice model switch */}
+      <div className="flex items-center justify-end w-full mt-5 mr-10 relative">
+        <Select value="Nova Text" onValueChange={handleModelChange}>
+          <SelectTrigger className="w-[180px] bg-white/60">
+            <SelectValue placeholder="Select Model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Select Model</SelectLabel>
+              <SelectItem value="Nova Text">Nova Text</SelectItem>
+              <SelectItem value="Nova Voice">Nova Voice</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
       {/* Main Content */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -76,7 +123,6 @@ export default function TextAgent() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10"
       >
-
         {/* Empty State / Header */}
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center mt-20 mb-10">
@@ -144,18 +190,18 @@ export default function TextAgent() {
               </div>
             ))}
             {loading && (
-               <div className="flex w-full justify-start">
-               <div className="flex max-w-[80%] flex-col gap-1">
-                 <span className="text-xs text-gray-400 uppercase font-semibold tracking-wider ml-1">
-                   Nova
-                 </span>
-                 <div className="flex items-center gap-2 pl-1 mt-2">
-                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                 </div>
-               </div>
-             </div>
+              <div className="flex w-full justify-start">
+                <div className="flex max-w-[80%] flex-col gap-1">
+                  <span className="text-xs text-gray-400 uppercase font-semibold tracking-wider ml-1">
+                    Nova
+                  </span>
+                  <div className="flex items-center gap-2 pl-1 mt-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  </div>
+                </div>
+              </div>
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -178,7 +224,10 @@ export default function TextAgent() {
               placeholder="Ask me anything"
               className="border-0 focus:ring-0 shadow-none resize-none min-h-[56px] max-h-48 py-4 px-6 text-lg text-gray-700 placeholder-gray-400 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-100"
             />
-            <InputGroupAddon align="block-end" className="pb-3 pr-6 justify-end">
+            <InputGroupAddon
+              align="block-end"
+              className="pb-3 pr-6 justify-end"
+            >
               <InputGroupButton
                 onClick={() => handleSend()}
                 disabled={!input.trim() || loading}
@@ -194,7 +243,7 @@ export default function TextAgent() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-8 h-8"
+                  className="w-12 h-12"
                 >
                   <line x1="22" x2="11" y1="2" y2="13" />
                   <polygon points="22 2 15 22 11 13 2 9 22 2" />
