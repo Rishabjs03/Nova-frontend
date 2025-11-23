@@ -3,6 +3,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { text_agent } from "../api/text_agent";
 
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupTextarea,
+} from "@/components/ui/input-group";
+
+import { motion } from "framer-motion";
+
 export default function TextAgent() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
@@ -10,10 +19,13 @@ export default function TextAgent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestions = [
-    "What can I ask you to do?",
-    "Which one of my projects is performing the best?",
-    "What projects should I be concerned about right now?",
-  ];
+  "Summarize any URL or article for me.",
+  "Search the web about a topic and explain it simply.",
+  "Extract and summarize content from a webpage.",
+  "Generate an image for my idea.",
+  "Compare two things using the latest online data.",
+  "Find recent news about any subject.",
+];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,7 +57,7 @@ export default function TextAgent() {
     setLoading(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -58,7 +70,12 @@ export default function TextAgent() {
       <div className="absolute inset-0 bg-gradient-to-b from-purple-50/50 to-white pointer-events-none" />
 
       {/* Main Content */}
-      <div className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10"
+      >
 
         {/* Empty State / Header */}
         {messages.length === 0 ? (
@@ -143,39 +160,50 @@ export default function TextAgent() {
             <div ref={messagesEndRef} />
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Input Area */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent z-20 flex justify-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+        className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent z-20 flex justify-center"
+      >
         <div className="w-full max-w-3xl relative">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask me anything"
-            className="w-full bg-white border border-gray-200 rounded-full px-6 py-4 pr-12 shadow-sm focus:outline-none focus:ring-4 focus:ring-gray-200 focus:border-gray-400 text-gray-700 placeholder-gray-400 transition-all"
-          />
-          <button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || loading}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-6 h-6"
-            >
-              <line x1="22" x2="11" y1="2" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-          </button>
+          <InputGroup className="w-full bg-white border border-gray-200 rounded-3xl shadow-sm focus-within:ring-4 focus-within:ring-gray-200 focus-within:border-gray-400 transition-all overflow-hidden">
+            <InputGroupTextarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask me anything"
+              className="border-0 focus:ring-0 shadow-none resize-none min-h-[56px] max-h-48 py-4 px-6 text-lg text-gray-700 placeholder-gray-400 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-100"
+            />
+            <InputGroupAddon align="block-end" className="pb-3 pr-6 justify-end">
+              <InputGroupButton
+                onClick={() => handleSend()}
+                disabled={!input.trim() || loading}
+                className="p-2 text-gray-400 hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-12 h-12"
+                variant="ghost"
+                size="icon-sm"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-8 h-8"
+                >
+                  <line x1="22" x2="11" y1="2" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
