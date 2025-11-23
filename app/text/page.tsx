@@ -180,8 +180,8 @@ export default function TextAgent() {
                   <div
                     className={`p-4 rounded-2xl text-base leading-relaxed ${
                       msg.role === "user"
-                        ? "bg-gray-100 text-gray-800 rounded-tr-none"
-                        : "bg-transparent text-gray-800 pl-0"
+                        ? "bg-gray-100 text-gray-800 border rounded-tr-none"
+                        : "bg-gray-50/80 text-gray-900 border rounded-2xl "
                     }`}
                   >
                     {msg.text}
@@ -231,7 +231,7 @@ export default function TextAgent() {
               <InputGroupButton
                 onClick={() => handleSend()}
                 disabled={!input.trim() || loading}
-                className="p-2 text-gray-400 hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-12 h-12"
+                className="p-2 text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-12 h-12"
                 variant="ghost"
                 size="icon-sm"
               >
