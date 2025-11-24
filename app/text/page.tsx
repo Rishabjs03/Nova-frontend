@@ -32,12 +32,12 @@ export default function TextAgent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestions = [
-    "Summarize any URL or article for me.",
-    "Search the web about a topic and explain it simply.",
-    "Extract and summarize content from a webpage.",
-    "Generate an image for my idea.",
-    "Compare two things using the latest online data.",
-    "Find recent news about any subject.",
+    "Analyze this URL and provide a comprehensive summary.",
+    "Research a complex topic and explain it in simple terms.",
+    "Extract key insights and data points from this webpage.",
+    "Visualize my idea by generating a creative image.",
+    "Compare these products using real-time market data.",
+    "Curate the latest news and developments on this subject.",
   ];
 
   const scrollToBottom = () => {
@@ -101,27 +101,52 @@ export default function TextAgent() {
         }}
       />
 
-      {/* Text or Voice model switch */}
-      <div className="flex items-center justify-end w-full mt-5 mr-10 relative">
-        <Select value="Nova Text" onValueChange={handleModelChange}>
-          <SelectTrigger className="w-[180px] bg-white/60">
-            <SelectValue placeholder="Select Model" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Select Model</SelectLabel>
-              <SelectItem value="Nova Text">Nova Text</SelectItem>
-              <SelectItem value="Nova Voice">Nova Voice</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+      {/* Fixed Header Bar */}
+      <div className="fixed top-0 left-0 right-0 z-30 bg-transparent backdrop-blur-sm border-b border-gray-200/50">
+        <div className="flex items-center justify-between px-5 py-4">
+          {/* Back Button */}
+          <button
+            onClick={() => router.push("/")}
+            className="p-2 rounded-full bg-white/50 hover:bg-white/80 transition-colors backdrop-blur-sm border border-gray-200/50 group"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-gray-700 group-hover:text-gray-900 transition-colors"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* Model Selector */}
+          <Select value="Nova Text" onValueChange={handleModelChange}>
+            <SelectTrigger className="w-[180px] bg-white/60">
+              <SelectValue placeholder="Select Model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select Model</SelectLabel>
+                <SelectItem value="Nova Text">Nova Text</SelectItem>
+                <SelectItem value="Nova Voice">Nova Voice</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      {/* Main Content */}
+
+      {/* Main Content with top padding for fixed header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10"
+        className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10 pt-24"
       >
         {/* Empty State / Header */}
         {messages.length === 0 ? (
@@ -155,7 +180,7 @@ export default function TextAgent() {
               {suggestions.map((suggestion, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleSend(suggestion)}
+                  onClick={() => setInput(suggestion)}
                   className="p-4 bg-gray-100 hover:bg-gray-200 rounded-xl text-left text-sm text-gray-700 transition-colors duration-200"
                 >
                   {suggestion}
@@ -165,7 +190,7 @@ export default function TextAgent() {
           </div>
         ) : (
           /* Chat Messages */
-          <div className="flex-1 overflow-y-auto space-y-8 pb-32 pt-10">
+          <div className="flex-1 overflow-y-auto space-y-8 pb-32 pt-10 ">
             {messages.map((msg, idx) => (
               <div
                 key={idx}

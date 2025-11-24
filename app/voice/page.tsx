@@ -76,10 +76,13 @@ export default function VoiceAgent() {
     ]);
 
     try {
-      const res = await fetch("http://localhost:8000/voice", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        "https://nova-backend-production-de0d.up.railway.app/voice",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await res.json();
       console.log(data);
@@ -137,28 +140,52 @@ export default function VoiceAgent() {
         }}
       />
 
-      {/* Text or Voice model switch */}
-      <div className="flex items-center justify-end w-full mt-5 mr-10  z-20 sticky top-0">
-        <Select value="Nova Voice" onValueChange={handleModelChange}>
-          <SelectTrigger className="w-[180px] bg-white/60">
-            <SelectValue placeholder="Select Model" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Select Model</SelectLabel>
-              <SelectItem value="Nova Text">Nova Text</SelectItem>
-              <SelectItem value="Nova Voice">Nova Voice</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+      {/* Fixed Header Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
+        <div className="flex items-center justify-between px-5 py-4">
+          {/* Back Button */}
+          <button
+            onClick={() => router.push("/")}
+            className="p-2 rounded-full bg-white/50 hover:bg-white/80 transition-colors backdrop-blur-sm border border-gray-200/50 group"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-gray-700 group-hover:text-gray-900 transition-colors"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* Model Selector */}
+          <Select value="Nova Voice" onValueChange={handleModelChange}>
+            <SelectTrigger className="w-[180px] bg-white/60">
+              <SelectValue placeholder="Select Model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select Model</SelectLabel>
+                <SelectItem value="Nova Text">Nova Text</SelectItem>
+                <SelectItem value="Nova Voice">Nova Voice</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content with top padding for fixed header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10"
+        className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10 pt-24"
       >
         {/* Header */}
         {messages.length === 0 && (

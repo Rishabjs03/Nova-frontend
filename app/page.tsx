@@ -1,65 +1,114 @@
-import Image from "next/image";
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900 relative overflow-hidden">
+      {/* Paper Texture */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `
+        radial-gradient(circle at 1px 1px, rgba(0,0,0,0.08) 1px, transparent 0),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)
+      `,
+          backgroundSize: "8px 8px, 32px 32px, 32px 32px",
+        }}
+      />
+
+      {/* Navbar */}
+      <motion.nav
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 flex items-center justify-between px-8 py-6"
+      >
+        <div
+          className="text-2xl font-semibold tracking-tight text-gray-900 cursor-pointer"
+          onClick={() => router.push("/")}
+        >
+          Nova
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        {/* Placeholder for future nav items if needed */}
+      </motion.nav>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col items-center justify-center relative z-10 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+          className="flex flex-col items-center gap-8"
+        >
+          {/* Hero Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+            className="text-center space-y-4 cursor-pointer"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <h1 className="text-5xl md:text-7xl font-medium tracking-tight text-gray-900">
+              Experience Nova
+            </h1>
+            <p className="text-lg md:text-xl text-gray-500 max-w-md mx-auto">
+              Your intelligent companion for text and voice interactions.
+            </p>
+          </motion.div>
+
+          {/* Playground Button */}
+          <Link href="/text">
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+              className="group flex items-center gap-3 px-8 py-4 bg-gray-900/90 backdrop-blur-md border border-gray-800/50 text-white rounded-full text-lg font-medium transition-all hover:bg-gray-800 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
+            >
+              <span>Playground</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform group-hover:translate-x-1"
+              >
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </motion.button>
+          </Link>
+        </motion.div>
       </main>
+
+      {/* Footer */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
+        className="relative z-10 py-6 text-center text-sm text-gray-400"
+      >
+        Made by{" "}
+        <a
+          href="https://x.com/Yrishavjs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-600 hover:text-gray-900 transition-colors underline decoration-gray-300 underline-offset-4 hover:decoration-gray-900"
+        >
+          Rishav
+        </a>
+      </motion.footer>
     </div>
   );
 }
