@@ -76,10 +76,13 @@ export default function VoiceAgent() {
     ]);
 
     try {
-      const res = await fetch("http://localhost:8000/voice", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        "https://nova-backend-production-de0d.up.railway.app/voice",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await res.json();
       console.log(data);
@@ -138,7 +141,7 @@ export default function VoiceAgent() {
       />
 
       {/* Fixed Header Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm border-b border-gray-200/50">
         <div className="flex items-center justify-between px-5 py-4">
           {/* Back Button */}
           <button
@@ -229,8 +232,10 @@ export default function VoiceAgent() {
                 <div
                   className={`p-4 rounded-2xl text-base leading-relaxed ${
                     msg.role === "Me"
-                      ? "bg-gray-100 text-gray-800 border rounded-tr-none"
-                      : "bg-gray-50/80 text-gray-900 border rounded-2xl "
+                      ? msg.text === "Recognizing speech..."
+                        ? "bg-gray-100 text-gray-800 border rounded-tr-none animate-pulse"
+                        : "bg-gray-100 text-gray-800 border rounded-tr-none"
+                      : "bg-gray-50/80 text-gray-900 border rounded-2xl"
                   }`}
                 >
                   {msg.text}

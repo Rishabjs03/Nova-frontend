@@ -24,9 +24,9 @@ import { useRouter } from "next/navigation";
 
 export default function TextAgent() {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<{ role: string; text: string }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<
+    { role: string; text?: string; image?: string }[]
+  >([]);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -35,9 +35,9 @@ export default function TextAgent() {
     "Analyze this URL and provide a comprehensive summary.",
     "Research a complex topic and explain it in simple terms.",
     "Extract key insights and data points from this webpage.",
-    "Visualize my idea by generating a creative image.",
     "Compare these products using real-time market data.",
     "Curate the latest news and developments on this subject.",
+    "Analyze numerical data and perform calculations to give me accurate insights.",
   ];
 
   const scrollToBottom = () => {
@@ -58,9 +58,18 @@ export default function TextAgent() {
 
     try {
       const reply = await text_agent(text);
-      const aiText = reply.response || reply.error || "No response";
-      const aiMessage = { role: "ai", text: aiText };
-      setMessages((prev) => [...prev, aiMessage]);
+      if (reply.response && reply.response.startsWith("IMAGE_URL::")) {
+        const url = reply.response.replace("IMAGE_URL::", "");
+
+        setMessages((prev) => [...prev, { role: "ai", image: url }]);
+      }
+      // TEXT
+      else {
+        setMessages((prev) => [
+          ...prev,
+          { role: "ai", text: reply.response || "No response" },
+        ]);
+      }
     } catch (error) {
       setMessages((prev) => [
         ...prev,
@@ -146,7 +155,7 @@ export default function TextAgent() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10 pt-24"
+        className="flex-1 w-full max-w-3xl flex flex-col p-4 z-10 md:pt-24 pt-0"
       >
         {/* Empty State / Header */}
         {messages.length === 0 ? (
@@ -176,7 +185,7 @@ export default function TextAgent() {
             </h1>
 
             {/* Suggestions */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
               {suggestions.map((suggestion, idx) => (
                 <button
                   key={idx}
@@ -190,7 +199,7 @@ export default function TextAgent() {
           </div>
         ) : (
           /* Chat Messages */
-          <div className="flex-1 overflow-y-auto space-y-8 pb-32 pt-10 ">
+          <div className="flex-1 overflow-y-auto space-y-8 pb-32 pt-10  ">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -209,7 +218,15 @@ export default function TextAgent() {
                         : "bg-gray-50/80 text-gray-900 border rounded-2xl "
                     }`}
                   >
-                    {msg.text}
+                    {msg.image ? (
+                      <img
+                        src={msg.image}
+                        alt="Generated"
+                        className="rounded-xl max-w-full shadow-md"
+                      />
+                    ) : (
+                      msg.text
+                    )}
                   </div>
                 </div>
               </div>
