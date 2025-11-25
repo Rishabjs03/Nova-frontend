@@ -88,13 +88,10 @@ export default function VoiceAgent() {
     setIsProcessing(true);
 
     try {
-      const res = await fetch(
-        "https://nova-backend-production-de0d.up.railway.app/voice",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const res = await fetch("https://nova-backend-jqco.onrender.com/voice", {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await res.json();
       console.log(data);

@@ -2,14 +2,13 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { text_agent } from "../api/text_agent";
-
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import {
   Select,
@@ -65,9 +64,7 @@ export default function TextAgent() {
         const url = reply.response.replace("IMAGE_URL::", "");
 
         setMessages((prev) => [...prev, { role: "ai", image: url }]);
-      }
-      // TEXT
-      else {
+      } else {
         setMessages((prev) => [
           ...prev,
           { role: "ai", text: reply.response || "No response" },
@@ -102,7 +99,9 @@ export default function TextAgent() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      // Optional: Add a toast notification here
+      toast.success("Copied to clipboard", {
+        duration: 1000,
+      });
     });
   };
 
