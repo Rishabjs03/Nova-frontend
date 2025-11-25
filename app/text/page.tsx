@@ -29,6 +29,9 @@ export default function TextAgent() {
   >([]);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [hoveredMessageIndex, setHoveredMessageIndex] = useState<number | null>(
+    null
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestions = [
@@ -84,7 +87,9 @@ export default function TextAgent() {
   ) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      if (!loading) {
+        handleSend();
+      }
     }
   };
   const handleModelChange = (value: string) => {
@@ -93,6 +98,12 @@ export default function TextAgent() {
     } else if (value === "Nova Voice") {
       router.push("/voice");
     }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      // Optional: Add a toast notification here
+    });
   };
 
   return (
@@ -212,20 +223,58 @@ export default function TextAgent() {
                     {msg.role === "user" ? "Me" : "Nova"}
                   </span>
                   <div
-                    className={`p-4 rounded-2xl text-base leading-relaxed ${
-                      msg.role === "user"
-                        ? "bg-gray-100 text-gray-800 border rounded-tr-none"
-                        : "bg-gray-50/80 text-gray-900 border rounded-2xl "
-                    }`}
+                    className="relative"
+                    onMouseEnter={() => setHoveredMessageIndex(idx)}
+                    onMouseLeave={() => setHoveredMessageIndex(null)}
                   >
-                    {msg.image ? (
-                      <img
-                        src={msg.image}
-                        alt="Generated"
-                        className="rounded-xl max-w-full shadow-md"
-                      />
-                    ) : (
-                      msg.text
+                    <div
+                      className={`p-4 rounded-2xl text-base leading-relaxed ${
+                        msg.role === "user"
+                          ? "bg-gray-100 text-gray-800 border rounded-tr-none"
+                          : "bg-gray-50/80 text-gray-900 border rounded-2xl "
+                      }`}
+                    >
+                      {msg.image ? (
+                        <img
+                          src={msg.image}
+                          alt="Generated"
+                          className="rounded-xl max-w-full shadow-md"
+                        />
+                      ) : (
+                        msg.text
+                      )}
+                    </div>
+                    {/* Copy Button */}
+                    {hoveredMessageIndex === idx && msg.text && (
+                      <button
+                        onClick={() => copyToClipboard(msg.text!)}
+                        className="absolute bottom-2 right-2 p-1.5 bg-white/90 hover:bg-white rounded-lg shadow-sm border border-gray-200 transition-all opacity-0 group-hover:opacity-100"
+                        style={{ opacity: hoveredMessageIndex === idx ? 1 : 0 }}
+                        title="Copy message"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-600"
+                        >
+                          <rect
+                            x="9"
+                            y="9"
+                            width="13"
+                            height="13"
+                            rx="2"
+                            ry="2"
+                          ></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -277,19 +326,23 @@ export default function TextAgent() {
                 variant="ghost"
                 size="icon-sm"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-12 h-12"
-                >
-                  <line x1="22" x2="11" y1="2" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                </svg>
+                {loading ? (
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-black" />
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-12 h-12"
+                  >
+                    <line x1="22" x2="11" y1="2" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                )}
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>

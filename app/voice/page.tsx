@@ -18,6 +18,10 @@ export default function VoiceAgent() {
   const [messages, setMessages] = useState<
     { role: "Me" | "nova"; text: string }[]
   >([]);
+  const [hoveredMessageIndex, setHoveredMessageIndex] = useState<number | null>(
+    null
+  );
+  const [isProcessing, setIsProcessing] = useState(false);
   const MediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const router = useRouter();
@@ -65,6 +69,12 @@ export default function VoiceAgent() {
       setisRecording(false);
     }
   };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      // Optional: Add a toast notification here
+    });
+  };
   const handlestopRecording = async () => {
     const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
     const formData = new FormData();
@@ -74,6 +84,8 @@ export default function VoiceAgent() {
       ...prev,
       { role: "Me", text: "Recognizing speech..." },
     ]);
+
+    setIsProcessing(true);
 
     try {
       const res = await fetch(
@@ -122,6 +134,8 @@ export default function VoiceAgent() {
         };
         return updated;
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -230,15 +244,54 @@ export default function VoiceAgent() {
                   {msg.role === "Me" ? "Me" : "Nova"}
                 </span>
                 <div
-                  className={`p-4 rounded-2xl text-base leading-relaxed ${
-                    msg.role === "Me"
-                      ? msg.text === "Recognizing speech..."
-                        ? "bg-gray-100 text-gray-800 border rounded-tr-none animate-pulse"
-                        : "bg-gray-100 text-gray-800 border rounded-tr-none"
-                      : "bg-gray-50/80 text-gray-900 border rounded-2xl"
-                  }`}
+                  className="relative"
+                  onMouseEnter={() => setHoveredMessageIndex(idx)}
+                  onMouseLeave={() => setHoveredMessageIndex(null)}
                 >
-                  {msg.text}
+                  <div
+                    className={`p-4 rounded-2xl text-base leading-relaxed ${
+                      msg.role === "Me"
+                        ? msg.text === "Recognizing speech..."
+                          ? "bg-gray-100 text-gray-800 border rounded-tr-none animate-pulse"
+                          : "bg-gray-100 text-gray-800 border rounded-tr-none"
+                        : "bg-gray-50/80 text-gray-900 border rounded-2xl"
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+                  {/* Copy Button */}
+                  {hoveredMessageIndex === idx &&
+                    msg.text !== "Recognizing speech..." && (
+                      <button
+                        onClick={() => copyToClipboard(msg.text)}
+                        className="absolute bottom-2 right-2 p-1.5 bg-white/90 hover:bg-white rounded-lg shadow-sm border border-gray-200 transition-all opacity-0 group-hover:opacity-100"
+                        style={{ opacity: hoveredMessageIndex === idx ? 1 : 0 }}
+                        title="Copy message"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-600"
+                        >
+                          <rect
+                            x="9"
+                            y="9"
+                            width="13"
+                            height="13"
+                            rx="2"
+                            ry="2"
+                          ></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
+                    )}
                 </div>
               </div>
             </div>
@@ -256,9 +309,12 @@ export default function VoiceAgent() {
       >
         <button
           onClick={isRecording ? stopRecording : startRecording}
+          disabled={isProcessing}
           className={`flex items-center justify-center w-16 h-16 rounded-full shadow-lg transition-all duration-300 ${
             isRecording
               ? "bg-red-500 hover:bg-red-600 animate-pulse"
+              : isProcessing
+              ? "bg-gray-400 cursor-not-allowed"
               : "bg-gray-900 hover:bg-gray-800"
           }`}
         >
