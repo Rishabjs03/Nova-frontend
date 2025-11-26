@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function VoiceAgent() {
@@ -22,8 +23,11 @@ export default function VoiceAgent() {
     null
   );
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const MediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -72,8 +76,25 @@ export default function VoiceAgent() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      // Optional: Add a toast notification here
+      toast.success("Copied to clipboard");
     });
+  };
+
+  const stopAudio = () => {
+    // Stop the typing animation
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+
+    // Stop the audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+
+    setIsPlaying(false);
   };
   const handlestopRecording = async () => {
     const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
@@ -119,10 +140,28 @@ export default function VoiceAgent() {
           return updated;
         });
 
-        if (index >= reply.length) clearInterval(interval);
+        if (index >= reply.length) {
+          clearInterval(interval);
+          typingIntervalRef.current = null;
+        }
       }, 20);
 
+      typingIntervalRef.current = interval;
+
       const audio = new Audio("data:audio/mp3;base64," + data.agent_audio);
+      audioRef.current = audio;
+      setIsPlaying(true);
+
+      audio.onended = () => {
+        setIsPlaying(false);
+        audioRef.current = null;
+
+        if (typingIntervalRef.current) {
+          clearInterval(typingIntervalRef.current);
+          typingIntervalRef.current = null;
+        }
+      };
+
       audio.play();
     } catch (error) {
       console.error("Error sending audio:", error);
@@ -305,15 +344,37 @@ export default function VoiceAgent() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-        className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent z-20 flex justify-center"
+        className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent z-20 flex justify-center items-center gap-4"
       >
+        {/* Stop Audio Button - appears when audio is playing */}
+        {isPlaying && (
+          <motion.button
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+            onClick={stopAudio}
+            className="flex items-center justify-center w-16 h-16 rounded-full shadow-lg transition-all duration-300 bg-orange-500 hover:bg-orange-600"
+            title="Stop audio"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="white"
+              viewBox="0 0 24 24"
+              className="w-8 h-8"
+            >
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+            </svg>
+          </motion.button>
+        )}
+
+        {/* Recording Button */}
         <button
           onClick={isRecording ? stopRecording : startRecording}
-          disabled={isProcessing}
+          disabled={isProcessing || isPlaying}
           className={`flex items-center justify-center w-16 h-16 rounded-full shadow-lg transition-all duration-300 ${
             isRecording
               ? "bg-red-500 hover:bg-red-600 animate-pulse"
-              : isProcessing
+              : isProcessing || isPlaying
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-gray-900 hover:bg-gray-800"
           }`}
